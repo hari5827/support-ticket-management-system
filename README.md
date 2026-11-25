@@ -1,8 +1,33 @@
+<div align="center">
+
 # 🎫 Support Ticket Management System
 
-A full-stack help-desk application where users raise support tickets, track their progress and talk to the support team, while admins triage, filter, update and resolve tickets from a dedicated dashboard with live statistics.
+**A full-stack help-desk platform for raising, tracking and resolving support tickets.**
 
-Built with the **MERN stack** (MongoDB, Express 5, React 19, Node.js), using **cookie-based JWT authentication**, **role-based access control** and an **event-driven activity log**.
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-000000?style=for-the-badge&logo=vercel)](https://support-ticket-management-system-topaz.vercel.app/login)
+[![API](https://img.shields.io/badge/API-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)](https://support-ticket-management-system-xazj.onrender.com/)
+
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=flat-square&logo=mongodb&logoColor=white)
+![Express](https://img.shields.io/badge/Express-000000?style=flat-square&logo=express&logoColor=white)
+![React](https://img.shields.io/badge/React-20232A?style=flat-square&logo=react&logoColor=61DAFB)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white)
+![JWT](https://img.shields.io/badge/Auth-JWT%20%2B%20HttpOnly%20Cookies-F59E0B?style=flat-square)
+
+</div>
+
+---
+
+## 📖 Overview
+
+Users raise support tickets, track their progress and communicate with the support team. Admins manage, filter, update and resolve tickets through a dedicated dashboard with live statistics.
+
+The project is built on the **MERN stack** and features cookie-based JWT authentication, role-based access control, and an event-driven activity log.
+
+| | Link |
+|---|---|
+| 🌐 **Live Application** | https://support-ticket-management-system-topaz.vercel.app/login |
+| ⚙️ **Backend API** | https://support-ticket-management-system-xazj.onrender.com/ |
 
 ---
 
@@ -14,7 +39,7 @@ Built with the **MERN stack** (MongoDB, Express 5, React 19, Node.js), using **c
 4. [Project Structure](#-project-structure)
 5. [Getting Started](#-getting-started)
 6. [Environment Variables](#-environment-variables)
-7. [Creating an Admin User](#-creating-an-admin-user)
+7. [Admin Registration](#-admin-registration)
 8. [API Reference](#-api-reference)
 9. [Data Models](#-data-models)
 10. [Roles & Permissions](#-roles--permissions)
@@ -23,88 +48,93 @@ Built with the **MERN stack** (MongoDB, Express 5, React 19, Node.js), using **c
 13. [Security Notes](#-security-notes)
 14. [Known Limitations & Roadmap](#-known-limitations--roadmap)
 15. [Scripts](#-scripts)
+16. [Author](#-author)
 
 ---
 
 ## ✨ Features
 
-**For users**
-- Register, log in and log out securely (HttpOnly cookie session).
-- Create tickets with a title, description, category and priority (`low` / `medium` / `high`).
-- View all of your own tickets and filter them by status.
-- Edit or delete a ticket while it is still `open`.
-- Open a ticket to see its details, the comment thread and a full activity timeline.
-- Add comments to your own tickets.
+### 👤 For Users
+- Register, log in and log out securely using HttpOnly cookie authentication
+- Create support tickets with a title, description, category and priority
+- View and track their own tickets, and filter them by status
+- Edit or delete tickets while they are still **open**
+- View ticket details, comments and activity history
+- Add comments to their tickets
 
-**For admins**
-- Dashboard with overview cards: total, open, in-progress and resolved tickets.
-- Statistics by status, by priority and tickets created per day over the last 7 days.
-- Paginated ticket table across **all** users with **search**, **status** and **priority** filters.
-- Change a ticket's status and priority inline.
-- Open any ticket, read its history and reply in the comment thread.
+### 🛠️ For Admins
+- Dedicated admin registration and login
+- Dashboard with total, open, in-progress and resolved ticket statistics
+- Statistics by status, by priority, and tickets created over the last seven days
+- View tickets submitted by all users
+- Search, filter, sort and paginate tickets
+- Update ticket status and priority
+- View ticket history and respond through comments
 
-**General**
-- Light / dark theme toggle.
-- Responsive UI built with Tailwind CSS 4 and Lucide icons.
-- Automatic activity logging for every key ticket action.
-- Request logging (Morgan), secure HTTP headers (Helmet) and CORS restricted to the frontend origin.
+### 🌐 General
+- Light and dark themes
+- Responsive UI built with Tailwind CSS
+- Automatic activity logging for important ticket actions
+- Secure HTTP headers (Helmet) and request logging (Morgan)
+- Role-based access control
 
 ---
 
 ## 🧰 Tech Stack
 
 | Layer | Technology |
-|-------|------------|
-| Frontend | React 19, Vite 8, React Router 7, Axios, Tailwind CSS 4, Lucide React |
-| Backend | Node.js, Express 5, Mongoose 9 |
-| Database | MongoDB (local or Atlas) |
-| Auth | JSON Web Tokens in HttpOnly cookies, bcryptjs password hashing |
-| Security / Tooling | Helmet, CORS, cookie-parser, Morgan, ESLint, Nodemon |
-
-> `express-validator` and `express-rate-limit` are installed as dependencies but are not yet wired into the routes (see [Roadmap](#-known-limitations--roadmap)).
+|---|---|
+| **Frontend** | React, Vite, React Router, Axios |
+| **Styling** | Tailwind CSS, Lucide React |
+| **Backend** | Node.js, Express.js |
+| **Database** | MongoDB, Mongoose |
+| **Authentication** | JWT, HttpOnly Cookies, bcryptjs |
+| **Security** | Helmet, CORS |
+| **Development** | Nodemon, ESLint |
 
 ---
 
-## 🏗 Architecture
+## 🏗️ Architecture
 
-```
-┌─────────────────────┐   Axios (withCredentials)   ┌──────────────────────────┐
-│  React SPA (Vite)   │ ──────────────────────────▶ │  Express API  :5000      │
-│  localhost:5173     │ ◀────── JSON + cookie ───── │  /api/auth               │
-│                     │                             │  /api/tickets            │
-│  AuthContext        │                             │  /api/comments           │
-│  ThemeContext       │                             │                          │
-└─────────────────────┘                             │  protect → adminOnly     │
-                                                    │  controllers → events    │
-                                                    └────────────┬─────────────┘
-                                                                 │ Mongoose
-                                                    ┌────────────▼─────────────┐
-                                                    │ MongoDB                  │
-                                                    │ users · tickets ·        │
-                                                    │ comments · activitylogs  │
-                                                    └──────────────────────────┘
+```text
+React Frontend
+      │
+      │  Axios (withCredentials)
+      ▼
+Express REST API
+      ├── Authentication Middleware
+      ├── Role-Based Access Control
+      ├── Controllers
+      └── Event Emitter
+      │
+      ▼
+MongoDB Database
+      ├── Users
+      ├── Tickets
+      ├── Comments
+      └── ActivityLogs
 ```
 
-**Request flow:** the browser sends the JWT cookie automatically → `protect` middleware verifies it and loads the user → optional `adminOnly` guard → controller performs the operation → controller emits a domain event → the event listener writes an `ActivityLog` entry.
+**Request flow:** The browser sends the JWT cookie with each API request. The authentication middleware verifies the token and identifies the user. The controller performs the requested operation and emits the relevant events. Event listeners then create activity log entries.
 
 ---
 
 ## 📁 Project Structure
 
-```
+```text
 support-ticket-management-system/
 ├── backend/
 │   ├── config/
-│   │   └── db.js                  # MongoDB connection
+│   │   └── db.js
 │   ├── controllers/
-│   │   ├── authController.js      # register, login, logout, getMe
-│   │   ├── ticketController.js    # CRUD, listing, activity, stats
-│   │   └── commentController.js   # add / list comments
+│   │   ├── authController.js
+│   │   ├── ticketController.js
+│   │   └── commentController.js
 │   ├── events/
-│   │   ├── eventNames.js          # event name constants
-│   │   └── ticketEvents.js        # async emitter + activity-log listeners
+│   │   ├── eventNames.js
+│   │   └── ticketEvents.js
 │   ├── middleware/
-│   │   └── authMiddleware.js      # protect, adminOnly
+│   │   └── authMiddleware.js
 │   ├── models/
 │   │   ├── User.js
 │   │   ├── Ticket.js
@@ -114,19 +144,19 @@ support-ticket-management-system/
 │   │   ├── authRoutes.js
 │   │   ├── ticketRoutes.js
 │   │   └── commentRoutes.js
-│   ├── server.js                  # app entry point
-│   └── package.json
+│   └── server.js
+│
 ├── frontend/
 │   ├── public/
 │   ├── src/
-│   │   ├── context/               # AuthContext, ThemeContext, ThemeToggle
-│   │   ├── pages/                 # Login, Register, UserDashboard,
-│   │   │                          # AdminDashboard, TicketDetails
-│   │   ├── services/api.js        # Axios instance
-│   │   ├── App.jsx                # routes & role-based redirects
+│   │   ├── context/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── App.jsx
 │   │   └── main.jsx
-│   ├── vite.config.js
+│   ├── vercel.json
 │   └── package.json
+│
 └── README.md
 ```
 
@@ -136,8 +166,9 @@ support-ticket-management-system/
 
 ### Prerequisites
 
-- **Node.js** 18 or newer (20+ recommended) and **npm**
-- A **MongoDB** instance: local install or a free [MongoDB Atlas](https://www.mongodb.com/atlas) cluster
+- **Node.js** 18 or newer (20+ recommended)
+- **npm**
+- **MongoDB**: a local installation or a MongoDB Atlas account
 
 ### 1. Clone the repository
 
@@ -153,19 +184,19 @@ cd backend
 npm install
 ```
 
-Create a `backend/.env` file (see [Environment Variables](#-environment-variables)), then start the API:
+Create a `.env` file inside the `backend` folder (see [Environment Variables](#-environment-variables)), then start the server:
 
 ```bash
-npm run dev      # development with auto-reload (nodemon)
+npm run dev     # development, with auto-reload
 # or
-npm start        # plain node
+npm start       # production-style start
 ```
 
-The API runs at **http://localhost:5000**. Visiting `/` returns `{"message": "Support Ticket API is running"}`.
+The backend runs at **http://localhost:5000**.
 
 ### 3. Set up the frontend
 
-Open a second terminal:
+In a second terminal:
 
 ```bash
 cd frontend
@@ -173,15 +204,15 @@ npm install
 npm run dev
 ```
 
-The app runs at **http://localhost:5173**.
+The frontend runs at **http://localhost:5173**.
 
-> ⚠️ The frontend origin (`http://localhost:5173`) and the API URL (`http://localhost:5000/api`) are currently **hard-coded** in `backend/server.js` (CORS) and `frontend/src/services/api.js`. Keep these ports, or update both files together.
+### 4. Try the application
 
-### 4. Try it out
-
-1. Register an account at `/register` and log in — you land on the **user dashboard**.
-2. Create a ticket and open it to add comments.
-3. [Promote a user to admin](#-creating-an-admin-user) and log in again to see the **admin dashboard**.
+1. Register a normal user at `/register`.
+2. Log in and create a support ticket.
+3. Register an admin at `/admin/register` using the admin setup code.
+4. Log in at `/admin/login`.
+5. Manage tickets from the admin dashboard.
 
 ---
 
@@ -190,351 +221,361 @@ The app runs at **http://localhost:5173**.
 Create `backend/.env`:
 
 ```env
-# Server
 PORT=5000
 NODE_ENV=development
 
-# Database
 MONGO_URI=mongodb://127.0.0.1:27017/support-tickets
-# or Atlas:
-# MONGO_URI=mongodb+srv://<user>:<password>@<cluster>.mongodb.net/support-tickets
 
-# Auth
 JWT_SECRET=replace_with_a_long_random_string
+
+ADMIN_SETUP_CODE= **TicketFlowAdmin2027**
 ```
 
 | Variable | Required | Description |
-|----------|----------|-------------|
-| `MONGO_URI` | ✅ | MongoDB connection string. The server exits if it cannot connect. |
-| `JWT_SECRET` | ✅ | Secret used to sign JWTs (tokens expire after 1 day). Use a long random value. |
-| `PORT` | ❌ | API port. Defaults to `5000`. |
-| `NODE_ENV` | ❌ | When `production`, the auth cookie is sent with the `Secure` flag (HTTPS only). |
+|---|:---:|---|
+| `MONGO_URI` | ✅ | MongoDB connection string |
+| `JWT_SECRET` | ✅ | Secret used to sign JWT tokens |
+| `ADMIN_SETUP_CODE` | ✅ | Secret code required for admin registration |
+| `PORT` | ❌ | Backend port (defaults to `5000`) |
+| `NODE_ENV` | ❌ | Controls production cookie settings |
 
-Generate a strong secret with:
+Generate a strong JWT secret:
 
 ```bash
 node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"
 ```
 
-`.env` files are git-ignored — never commit real credentials.
+> [!IMPORTANT]
+> - Never commit your actual `.env` file.
+> - Never expose `JWT_SECRET` or `ADMIN_SETUP_CODE` in frontend code.
+> - Configure these variables separately in your deployment environment.
+> - Use different secret values for local development and production.
 
 ---
 
-## 👑 Creating an Admin User
+## 🛡️ Admin Registration
 
-Public registration always creates a user with the role `user`; there is no API to self-assign admin. To create an admin:
+The application provides separate authentication flows for normal users and administrators.
 
-1. Register a normal account through the UI.
-2. Change its role directly in MongoDB.
+| Purpose | Route |
+|---|---|
+| User Registration | `/register` |
+| User Login | `/login` |
+| Admin Registration | `/admin/register` |
+| Admin Login | `/admin/login` |
 
-**Using `mongosh`:**
+### How it works
 
-```js
-use support-tickets
-db.users.updateOne(
-  { email: "admin@example.com" },
-  { $set: { role: "admin" } }
-)
+Admin registration is protected by a secret setup code stored in a backend environment variable:
+
+```env
+ADMIN_SETUP_CODE= TicketFlowAdmin2027
 ```
 
-**Using MongoDB Compass / Atlas:** open the `users` collection, edit the document and set `role` to `"admin"`.
+When an admin registers, the backend verifies the submitted setup code against this variable. Only users who provide the correct code can create an admin account.
 
-Log out and log in again; the root route (`/`) will now render the admin dashboard.
+### Testing admin access (for recruiters and evaluators)
+
+1. Open the live application.
+2. Go to the [admin registration page](https://support-ticket-management-system-topaz.vercel.app/admin/register).
+3. Enter your name, email, password and the admin setup code.
+4. Register, then sign in at `/admin/login`.
+5. Use the admin dashboard to manage support tickets.
+
+> [!NOTE]
+> The setup code is intentionally not published in this public repository. Please request it directly from the project owner.
 
 ---
 
 ## 📡 API Reference
 
-**Base URL:** `http://localhost:5000/api`
+| Environment | Base URL |
+|---|---|
+| Local | `http://localhost:5000/api` |
+| Production | `https://support-ticket-management-system-xazj.onrender.com/api` |
 
-Authentication uses an **HttpOnly cookie** named `token`, set on login. Clients must send credentials (`withCredentials: true` in Axios, `credentials: "include"` in fetch). Endpoints marked 🔒 require a valid cookie; 👑 additionally require the admin role.
+Authentication uses an **HttpOnly cookie** named `token`. API clients must send credentials with each request.
 
-### Authentication — `/api/auth`
+### Authentication: `/api/auth`
 
 | Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/register` | Public | Create a new user account |
-| POST | `/login` | Public | Log in and set the auth cookie |
-| POST | `/logout` | 🔒 | Clear the auth cookie |
-| GET | `/me` | 🔒 | Return the currently authenticated user |
+|---|---|---|---|
+| `POST` | `/register` | Public | Register a normal user |
+| `POST` | `/login` | Public | User login |
+| `POST` | `/admin/register` | Setup code | Register an admin |
+| `POST` | `/admin/login` | Public | Admin login |
+| `POST` | `/logout` | Authenticated | Log out |
+| `GET` | `/me` | Authenticated | Get the current user |
 
-**Register** — `POST /api/auth/register`
-```json
-{ "name": "Jane Doe", "email": "jane@example.com", "password": "secret123" }
-```
-`201 Created`
+<details>
+<summary><b>Example: user registration</b></summary>
+
+`POST /api/auth/register`
+
 ```json
 {
-  "message": "Registration successful",
-  "user": { "id": "…", "name": "Jane Doe", "email": "jane@example.com", "role": "user" }
+  "name": "Jane Doe",
+  "email": "jane@example.com",
+  "password": "secret123"
 }
 ```
-Errors: `400` missing fields · `409` email already registered.
 
-**Login** — `POST /api/auth/login`
-```json
-{ "email": "jane@example.com", "password": "secret123" }
-```
-`200 OK` — sets the `token` cookie (HttpOnly, SameSite=Lax, 24 h) and returns the user object. Errors: `400` missing fields · `401` invalid credentials.
+Normal registration always creates an account with the `user` role.
+</details>
 
-### Tickets — `/api/tickets`
+<details>
+<summary><b>Example: admin registration</b></summary>
 
-| Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/` | 🔒 | Create a ticket |
-| GET | `/my-tickets` | 🔒 | List the current user's tickets (newest first) |
-| GET | `/` | 🔒👑 | List all tickets with filtering, search, sorting and pagination |
-| GET | `/stats` | 🔒👑 | Dashboard statistics |
-| GET | `/:id` | 🔒 owner / admin | Get a single ticket |
-| PUT | `/:id` | 🔒 owner / admin | Update a ticket (rules below) |
-| DELETE | `/:id` | 🔒 owner | Delete an `open` ticket |
-| GET | `/:id/activity` | 🔒 owner / admin | Get the ticket's activity timeline |
+`POST /api/auth/admin/register`
 
-**Create** — `POST /api/tickets`
 ```json
 {
-  "title": "Cannot reset my password",
-  "description": "The reset email never arrives.",
-  "category": "Account",
+  "name": "Admin",
+  "email": "admin@example.com",
+  "password": "secret123",
+  "setupCode": "your_private_setup_code"
+}
+```
+
+The backend validates the setup code before creating the admin account.
+</details>
+
+### Tickets: `/api/tickets`
+
+| Method | Endpoint | Access | Description |
+|---|---|---|---|
+| `POST` | `/` | Authenticated | Create a ticket |
+| `GET` | `/my-tickets` | User | List own tickets |
+| `GET` | `/` | Admin | List all tickets |
+| `GET` | `/stats` | Admin | Dashboard statistics |
+| `GET` | `/:id` | Owner / Admin | Get ticket details |
+| `PUT` | `/:id` | Owner / Admin | Update a ticket |
+| `DELETE` | `/:id` | Owner | Delete an open ticket |
+| `GET` | `/:id/activity` | Owner / Admin | Get activity history |
+
+<details>
+<summary><b>Example: create a ticket</b></summary>
+
+`POST /api/tickets`
+
+```json
+{
+  "title": "Internet Issue",
+  "description": "Internet is not working",
+  "category": "Technical",
   "priority": "high"
 }
 ```
-`title`, `description` and `category` are required. `priority` defaults to `medium`.
+</details>
 
-**List all tickets (admin)** — `GET /api/tickets`
+#### Admin ticket filtering
 
-| Query param | Default | Description |
-|-------------|---------|-------------|
-| `page` | `1` | Page number |
-| `limit` | `10` | Page size (max `100`) |
-| `status` | — | `open`, `in-progress` or `resolved` |
-| `priority` | — | `low`, `medium` or `high` |
-| `category` | — | Exact category match |
-| `search` | — | Case-insensitive match on title, description or category |
-| `sortBy` | `createdAt` | `createdAt` or `title` |
-| `order` | `desc` | `asc` or `desc` |
+`GET /api/tickets` supports the following query parameters:
 
-Example: `GET /api/tickets?status=open&priority=high&search=password&page=1&limit=10`
+| Parameter | Description |
+|---|---|
+| `page` | Page number |
+| `limit` | Number of tickets per page |
+| `status` | Filter by ticket status |
+| `priority` | Filter by priority |
+| `category` | Filter by category |
+| `search` | Search title, description or category |
+| `sortBy` | Sort by `createdAt` or `title` |
+| `order` | `asc` or `desc` |
 
-```json
-{
-  "success": true,
-  "pagination": { "currentPage": 1, "totalPages": 3, "totalTickets": 24, "limit": 10 },
-  "tickets": [ { "_id": "…", "title": "…", "createdBy": { "name": "…", "email": "…" } } ]
-}
+Example:
+
+```text
+/api/tickets?status=open&priority=high&page=1&limit=10
 ```
 
-**Update rules** — `PUT /api/tickets/:id`
-
-| Actor | Allowed fields | Restrictions |
-|-------|----------------|--------------|
-| Admin | `title`, `description`, `category`, `priority`, `status` | None |
-| Owner | `title`, `description`, `category` | Ticket must be `open`; cannot change `status` or `priority` |
-
-**Dashboard stats** — `GET /api/tickets/stats`
-```json
-{
-  "success": true,
-  "overview": { "totalTickets": 42, "openTickets": 15, "inProgressTickets": 12, "resolvedTickets": 15 },
-  "statusStats":   [ { "_id": "open", "count": 15 } ],
-  "priorityStats": [ { "_id": "high", "count": 9 } ],
-  "lastSevenDays": [ { "_id": "2026-11-24", "count": 5 } ]
-}
-```
-
-### Comments — `/api/comments`
+### Comments: `/api/comments`
 
 | Method | Endpoint | Access | Description |
-|--------|----------|--------|-------------|
-| POST | `/:ticketId` | 🔒 owner / admin | Add a comment to a ticket |
-| GET | `/:ticketId` | 🔒 owner / admin | List a ticket's comments (oldest first) |
+|---|---|---|---|
+| `POST` | `/:ticketId` | Owner / Admin | Add a comment |
+| `GET` | `/:ticketId` | Owner / Admin | List comments |
 
-**Add comment** — `POST /api/comments/:ticketId`
 ```json
-{ "message": "Any update on this?" }
+{
+  "message": "Any update on this issue?"
+}
 ```
 
-### Common error responses
-
-| Status | Meaning |
-|--------|---------|
-| `400` | Missing/invalid input, or action not allowed for the ticket's current state |
-| `401` | Not logged in, invalid/expired token, or bad credentials |
-| `403` | Authenticated but not allowed (not the owner, or not an admin) |
-| `404` | Resource not found |
-| `409` | Duplicate resource (email already registered) |
-| `500` | Unexpected server error |
-
-Errors are returned as `{ "message": "…" }`.
-
 ---
 
-## 🗄 Data Models
+## 🗄️ Data Models
 
 ### User
-| Field | Type | Notes |
-|-------|------|-------|
-| `name` | String | Required, trimmed |
-| `email` | String | Required, unique, lowercased |
-| `password` | String | Required, stored as a bcrypt hash |
-| `role` | String | `user` (default) or `admin` |
-| `createdAt` / `updatedAt` | Date | Automatic |
+
+| Field | Type | Description |
+|---|---|---|
+| `name` | String | User name |
+| `email` | String | Unique email |
+| `password` | String | bcrypt password hash |
+| `role` | String | `user` or `admin` |
+| `timestamps` | Date | Created and updated dates |
 
 ### Ticket
-| Field | Type | Notes |
-|-------|------|-------|
-| `title` | String | Required, trimmed |
-| `description` | String | Required |
-| `category` | String | Required, free text |
-| `priority` | String | `low`, `medium` (default), `high` |
-| `status` | String | `open` (default), `in-progress`, `resolved` |
-| `createdBy` | ObjectId → User | Required |
-| `createdAt` / `updatedAt` | Date | Automatic |
+
+| Field | Type | Description |
+|---|---|---|
+| `title` | String | Ticket title |
+| `description` | String | Ticket details |
+| `category` | String | Ticket category |
+| `priority` | String | `low`, `medium` or `high` |
+| `status` | String | `open`, `in-progress` or `resolved` |
+| `createdBy` | ObjectId | Reference to User |
+| `timestamps` | Date | Created and updated dates |
 
 ### Comment
-| Field | Type | Notes |
-|-------|------|-------|
-| `ticket` | ObjectId → Ticket | Required |
-| `user` | ObjectId → User | Required |
-| `message` | String | Required, trimmed |
+
+| Field | Type | Description |
+|---|---|---|
+| `ticket` | ObjectId | Reference to Ticket |
+| `user` | ObjectId | Reference to User |
+| `message` | String | Comment content |
 
 ### ActivityLog
-| Field | Type | Notes |
-|-------|------|-------|
-| `ticket` | ObjectId → Ticket | Required |
-| `performedBy` | ObjectId → User | Required |
-| `action` | String | `ticket_created`, `ticket_updated`, `status_changed`, `comment_added`, `ticket_resolved` |
-| `details` | String | Human-readable description |
 
-**Relationships:** a User has many Tickets; a Ticket has many Comments and ActivityLog entries.
+| Field | Type | Description |
+|---|---|---|
+| `ticket` | ObjectId | Reference to Ticket |
+| `performedBy` | ObjectId | Reference to User |
+| `action` | String | Activity type |
+| `details` | String | Activity description |
+
+**Relationships**
+
+- A User can create many Tickets.
+- A Ticket can have many Comments.
+- A Ticket can have many ActivityLog entries.
 
 ---
 
-## 🛡 Roles & Permissions
+## 🔑 Roles & Permissions
 
 | Capability | User | Admin |
-|------------|:----:|:-----:|
-| Register / log in / log out | ✅ | ✅ |
+|---|:---:|:---:|
+| Register and log in | ✅ | ✅ |
 | Create tickets | ✅ | ✅ |
 | View own tickets | ✅ | ✅ |
-| View **all** tickets, search & filter | ❌ | ✅ |
-| View any ticket's details, comments & activity | Own only | ✅ |
-| Edit title / description / category | Own, while `open` | ✅ Any |
-| Change status & priority | ❌ | ✅ |
-| Comment on a ticket | Own only | ✅ Any |
-| Delete a ticket | Own, while `open` | ❌ (not implemented) |
+| View all tickets | ❌ | ✅ |
+| Search and filter all tickets | ❌ | ✅ |
+| Edit own open tickets | ✅ | ✅ |
+| Change ticket status | ❌ | ✅ |
+| Change ticket priority | ❌ | ✅ |
+| Comment on tickets | Own only | Any |
+| Delete tickets | Own open tickets | ❌ |
 | Dashboard statistics | ❌ | ✅ |
 
 ---
 
 ## ⚡ Event-Driven Activity Log
 
-Instead of writing audit entries inside every controller, the backend uses a small **async event emitter** (`backend/events/ticketEvents.js`). Controllers emit a named event; listeners persist an `ActivityLog` document.
+The backend uses a custom asynchronous event emitter in `backend/events/ticketEvents.js`. Controllers emit events when important ticket operations occur, and event listeners save the corresponding records in the `ActivityLog` collection.
 
-| Event | Emitted when | Logged action |
-|-------|--------------|---------------|
-| `ticketCreated` | A ticket is created | `ticket_created` |
-| `ticketUpdated` | A ticket is updated | `ticket_updated` |
-| `statusChanged` | Status differs after an update | `status_changed` ("Status changed from *x* to *y*") |
-| `ticketResolved` | Status becomes `resolved` | `ticket_resolved` |
-| `commentAdded` | A comment is posted | `comment_added` |
+| Event | Trigger |
+|---|---|
+| `ticketCreated` | Ticket created |
+| `ticketUpdated` | Ticket updated |
+| `statusChanged` | Ticket status changed |
+| `ticketResolved` | Ticket resolved |
+| `commentAdded` | Comment added |
 
-`emitAsync` awaits all listeners with `Promise.all`, so the log is written before the HTTP response is returned. To add a new behaviour (e.g. email notifications), register another listener for the relevant event — no controller changes are needed.
+The asynchronous emitter waits for all listeners to finish before the HTTP response is returned. This design lets you add further listeners, such as email notifications, without placing that logic inside the controllers.
+
+> [!NOTE]
+> The current event emitter runs in memory. It does not provide persistent queues or automatic retries if the server crashes.
 
 ---
 
-## 🖥 Frontend Overview
+## 🖥️ Frontend Overview
 
-| Route | Component | Access |
-|-------|-----------|--------|
-| `/login` | `Login` | Public (redirects home if logged in) |
-| `/register` | `Register` | Public (redirects home if logged in) |
-| `/` | `UserDashboard` or `AdminDashboard` | Authenticated; chosen by `user.role` |
-| `/tickets/:id` | `TicketDetails` | Authenticated |
-| `*` | — | Redirects to `/` |
+| Route | Component | Description |
+|---|---|---|
+| `/login` | `Login` | User login |
+| `/register` | `Register` | User registration |
+| `/admin/login` | `AdminLogin` | Admin login |
+| `/admin/register` | `AdminRegister` | Admin registration |
+| `/` | `UserDashboard` / `AdminDashboard` | Role-based dashboard |
+| `/tickets/:id` | `TicketDetails` | Ticket details, comments and activity |
 
-**State management**
-- `AuthContext` — checks `/auth/me` on load, exposes `user`, `loading`, `login`, `register`, `logout`.
-- `ThemeContext` — light/dark mode, toggled via `ThemeToggle`.
+### State management
 
-**API client** — `src/services/api.js` is a pre-configured Axios instance (`baseURL: http://localhost:5000/api`, `withCredentials: true`).
+- **AuthContext**: handles authentication, the current user and logout
+- **ThemeContext**: handles light and dark themes
+- **Axios API client**: sends API requests with credentials
 
 ---
 
 ## 🔒 Security Notes
 
-- Passwords are hashed with **bcrypt** (10 salt rounds) and never returned by the API.
-- JWTs live in **HttpOnly** cookies (not accessible from JavaScript), `SameSite=Lax`, and `Secure` when `NODE_ENV=production`.
-- **Helmet** sets secure HTTP headers; **CORS** only allows the frontend origin with credentials.
-- Ownership checks are enforced server-side on every ticket and comment route.
-- Sorting is restricted to an allow-list of fields.
-- Pagination `limit` is capped at 100.
-
-**Before deploying to production**
-- Serve over HTTPS and set `NODE_ENV=production`.
-- Move the hard-coded CORS origin and API base URL into environment variables.
-- Use a long, random `JWT_SECRET` and keep `.env` out of version control.
-- Add input validation and rate limiting (see below).
+- Passwords are hashed with bcryptjs.
+- JWT tokens are stored in HttpOnly cookies.
+- Admin registration requires a server-side setup code.
+- User roles are enforced through backend middleware.
+- Ticket ownership is verified on protected operations.
+- Helmet adds secure HTTP headers.
+- CORS is configured to allow the frontend origin.
+- Pagination limits are capped.
 
 ---
 
 ## 🧭 Known Limitations & Roadmap
 
-Current limitations, noted for transparency:
+### Current limitations
 
-- No dedicated "create admin" flow — admins are promoted manually in the database.
-- `express-validator` and `express-rate-limit` are installed but not yet applied; login/register are not rate-limited and input validation is minimal (no password-strength or email-format checks).
-- Ticket `category` is free text rather than a fixed list.
-- Raw error messages are returned on `500` responses; consider a centralized error handler.
-- The admin search uses an unescaped regular expression; escaping user input would harden it.
-- Admins cannot delete tickets, and there is no pagination on the user's own ticket list.
-- No automated tests yet (`npm test` is a placeholder).
-- Hard-coded `localhost` URLs in `server.js` and `api.js`.
-- `backend/config/db.js` forces DNS servers to `1.1.1.1` / `8.8.8.8`, which helps with Atlas SRV lookups on some networks but may not suit every environment.
+- The event emitter is in-memory and does not provide durable message processing.
+- Input validation and rate limiting can be expanded.
+- Ticket categories accept free-text values.
+- Automated backend tests are not yet implemented.
+- There is no email notification system.
+- Tickets cannot be assigned to individual support agents.
+- The admin setup code is a shared registration secret, not an individual invitation system.
 
-Ideas for future work:
+### Planned improvements
 
-- [ ] Ticket assignment to specific support agents
-- [ ] Email / in-app notifications driven by the existing event system
-- [ ] File attachments on tickets and comments
-- [ ] Charts for the admin statistics endpoint
+- [ ] Ticket assignment to support agents
+- [ ] Email and in-app notifications
+- [ ] File attachments
+- [ ] More detailed analytics and charts
 - [ ] SLA timers and due dates
-- [ ] Unit and integration tests (Jest + Supertest) and CI
-- [ ] Docker / Docker Compose setup
+- [ ] Automated tests using Jest and Supertest
+- [ ] Docker and Docker Compose
 - [ ] Swagger / OpenAPI documentation
+- [ ] Durable event processing using a message queue
 
 ---
 
 ## 📜 Scripts
 
-**Backend** (`/backend`)
+### Backend
 
 | Command | Description |
-|---------|-------------|
-| `npm start` | Run the API with Node |
-| `npm run dev` | Run the API with Nodemon (auto-reload) |
+|---|---|
+| `npm start` | Start the backend |
+| `npm run dev` | Start the backend with Nodemon |
 
-**Frontend** (`/frontend`)
+### Frontend
 
 | Command | Description |
-|---------|-------------|
-| `npm run dev` | Start the Vite dev server |
-| `npm run build` | Create a production build in `dist/` |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Lint the code with ESLint |
+|---|---|
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Create a production build |
+| `npm run preview` | Preview the production build |
+| `npm run lint` | Run ESLint |
 
 ---
 
-## 🤝 Contributing
-
-1. Fork the repository and create a feature branch: `git checkout -b feature/your-feature`
-2. Commit your changes with clear messages.
-3. Push the branch and open a Pull Request.
-
-## 📄 License
-
-The backend `package.json` declares the **ISC** license. Add a `LICENSE` file to the repository root to make this explicit.
-
-## 👤 Author
+## 👨‍💻 Author
 
 **Hariom Mishra**
+
+---
+
+<div align="center">
+
+⭐ If you found this project useful, consider giving it a star.
+
+</div>
