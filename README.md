@@ -282,8 +282,6 @@ When an admin registers, the backend verifies the submitted setup code against t
 4. Register, then sign in at `/admin/login`.
 5. Use the admin dashboard to manage support tickets.
 
-> [!NOTE]
-> The setup code is intentionally not published in this public repository. Please request it directly from the project owner.
 
 ---
 
