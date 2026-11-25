@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/api";
 
@@ -7,7 +8,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Check existing login when the app loads
   const checkAuth = async () => {
     try {
       const response = await api.get("/auth/me");
@@ -43,6 +43,27 @@ export const AuthProvider = ({ children }) => {
     return response.data;
   };
 
+  const adminLogin = async (email, password) => {
+    const response = await api.post("/auth/admin/login", {
+      email,
+      password,
+    });
+
+    setUser(response.data.user);
+    return response.data;
+  };
+
+  const adminRegister = async (name, email, password, setupCode) => {
+    const response = await api.post("/auth/admin/register", {
+      name,
+      email,
+      password,
+      setupCode,
+    });
+
+    return response.data;
+  };
+
   const logout = async () => {
     await api.post("/auth/logout");
     setUser(null);
@@ -50,7 +71,15 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, register, logout }}
+      value={{
+        user,
+        loading,
+        login,
+        register,
+        adminLogin,
+        adminRegister,
+        logout,
+      }}
     >
       {children}
     </AuthContext.Provider>
